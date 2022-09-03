@@ -1,0 +1,3 @@
+CAM = ["rtsp://streaming.planetcloud.cloud:5541/1f9fc0c7-8e74-43fc-8758-dfeb8c09d8f0/0",
+       "rtsp://streaming.planetcloud.cloud:5541/7707ed09-0c72-4429-b2ea-a0cc521773ea/0",
+       "rtsp://streaming.planetcloud.cloud:5541/7f6a5e94-60b4-4a0e-b564-cdabff325120/0"]
