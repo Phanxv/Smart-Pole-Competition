@@ -1,3 +1,4 @@
+import os
 import json
 import time
 from flask import json
@@ -6,13 +7,16 @@ from flask import Flask
 from linebot import LineBotApi
 from linebot.models import TextSendMessage
 from linebot.exceptions import LineBotApiError
+from dotenv import load_dotenv
 
-app = Flask(__name__)
-line_bot_api = LineBotApi('token')
-
+load_dotenv()
 json_file = open("parking_lot_status_dummy.json", "r")
 parking_json_object = json.load(json_file)
 json_file.close()
+
+LINE_BOT_API_KEY = os.getenv('LINE_BOT_API_KEY')
+app = Flask(__name__)
+line_bot_api = LineBotApi(LINE_BOT_API_KEY)
 
 AE_parking_status_list = []
 EC_parking_status_list = []
@@ -48,7 +52,7 @@ def find_parking_space(usr_input) :
                 json.dump(parking_json_object, json_file, indent=1)
                 json_file.close()
                 return "EC-L"+str(i)
-    return 404
+    return "404"
 
 @app.route('/webhook', methods = ['POST'])
 
@@ -66,7 +70,7 @@ def api_root() :
         else :
             line_bot_api.reply_message(reply_token, TextSendMessage(text='ไม่มีที่จอดรถว่างใกล้ตึก ' + parsed_message + ' ที่ตรวจพบจาก smart pole'))
     elif parsed_message in ['help','วิธีใช้งาน','ช่วยเหลือ'] :
-            line_bot_api.reply_message(reply_token, TextSendMessage(text='วิธีการใช้งาน intelligent parking'))
+        print("")
     else :
         line_bot_api.reply_message(reply_token, TextSendMessage(text='ตัวเลือกไม่ถูกต้อง'))
     return "OK"
