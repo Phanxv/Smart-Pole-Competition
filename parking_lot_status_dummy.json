@@ -1,27 +1,27 @@
 {
  "AE": {
   "1": "true",
-  "10": "true",
+  "10": "false",
   "11": "true",
-  "12": "true",
-  "13": "true",
+  "12": "false",
+  "13": "false",
   "14": "true",
-  "15": "true",
-  "2": "reserved",
-  "3": "true",
+  "15": "false",
+  "2": "true",
+  "3": "false",
   "4": "false",
-  "5": "true",
+  "5": "false",
   "6": "false",
   "7": "true",
-  "8": "true",
+  "8": "false",
   "9": "false"
  },
  "EC": {
   "1": "true",
   "2": "true",
-  "3": "true",
+  "3": "false",
   "4": "true",
-  "5": "true",
-  "6": "true"
+  "5": "false",
+  "6": "false"
  }
 }
