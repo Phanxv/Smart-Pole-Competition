@@ -1,0 +1,20 @@
+{
+    "th" : {
+        "lang_regis" : "ตัวเลือกภาษาถูกบันทึกแล้ว : ภาษาไทย"    
+    },
+    "en" : {
+        "lang_regis" : "Language preferrence saved : English",
+        "plate_ask" : "Please enter your licence plate number \n(eg. กก9999)",
+        "plate_regis" : "Licence plate registed as ",
+        "building_ask" : "Which building do you work in? \n(enter only 1 character)",
+        "building_regis" : "Building registed : Building ",
+        "regis_fin" : {
+            "1" : "Registration process successful, \nfrom now on if licence plate ",
+            "2" : " detected \nThe system will find parking space nearest to building ",
+            "3" : " for you, Thank you for using our service."
+        }
+    },
+    "jp" : {
+        "lang_regis" : "PLACEHOLDER"
+    }
+}

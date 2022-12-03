@@ -6,7 +6,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 
-json_file = open("parking_lot_status_dummy.json", "r")
+json_file = open("parking_lot_status.json", "r")
 parking_json_object = json.load(json_file)
 json_file.close()
 load_dotenv()
@@ -68,7 +68,7 @@ def request_parking_status():
             parking_json_object["AE"][str(i)] = parking_status_temp
         elif(parking_status_temp == "false" and parking_json_object["AE"][str(i)] == "reserved") :
             parking_json_object["AE"][str(i)] = "reserved"
-        json_file = open("parking_lot_status_dummy.json", "w")
+        json_file = open("parking_lot_status.json", "w")
         json.dump(parking_json_object, json_file, indent=1)
         json_file.close()
 
@@ -84,7 +84,7 @@ def request_parking_status():
         elif(parking_status_temp == "false" and parking_json_object["EC"][str(i)] == "reserved") :
             parking_json_object["EC"][str(i)] = "reserved"
         parking_json_object["EC"][str(i)] = parking_status_temp
-        json_file = open("parking_lot_status_dummy.json", "w")
+        json_file = open("parking_lot_status.json", "w")
         json.dump(parking_json_object, json_file, indent=1)
         json_file.close()
     

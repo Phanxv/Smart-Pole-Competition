@@ -1,0 +1,138 @@
+import os
+import json
+import time
+from flask import json
+from flask import request
+from flask import Flask
+from linebot import LineBotApi
+from linebot.models import TextSendMessage
+from linebot.exceptions import LineBotApiError
+from dotenv import load_dotenv
+
+#load data from database
+parking_file_path = "parking_lot_status.json"
+userdatase_file_path = "user_database.json"
+response_file_path = "response_text.json"
+load_dotenv()
+parking_json_file = open(parking_file_path, "r")
+parking_json_object = json.load(parking_json_file)
+parking_json_file.close()
+user_database_json = []
+user_database_file = open(userdatase_file_path,"r")
+user_database_json = json.load(user_database_file)
+user_database_file.close()
+response_text_file = open(response_file_path,"r",encoding="utf8")
+response_text_json = json.load(response_text_file)
+response_text_file.close()
+LINE_BOT_API_KEY = os.getenv('LINE_BOT_API_KEY')
+
+#initialize server and LINE bot
+app = Flask(__name__)
+line_bot_api = LineBotApi(LINE_BOT_API_KEY)
+
+AE_parking_status_list = []
+EC_parking_status_list = []
+
+def find_parking_space(usr_input) :
+    if usr_input == 'A' :
+        for i in range(1,16) :
+            if parking_json_object["AE"][str(i)] == "false" :
+                parking_json_object["AE"][str(i)] = "reserved"
+                parking_json_file = open(parking_file_path, "w")
+                json.dump(parking_json_object, parking_json_file, indent=1)
+                parking_json_file.close()
+                return "AE-L"+str(i)
+    if usr_input == 'E' :
+        for i in range(1,16) :
+            if parking_json_object["AE"][str(i)] == "false" :
+                parking_json_object["AE"][str(i)] = "reserved"
+                parking_json_file = open(parking_file_path, "w")
+                json.dump(parking_json_object, parking_json_file, indent=1)
+                parking_json_file.close()
+                return "AE-L"+str(i)
+            if i < 7 and parking_json_object["EC"][str(i)] == "false" :
+                parking_json_object["EC"][str(i)] = "reserved"
+                parking_json_file = open(parking_file_path, "w")
+                json.dump(parking_json_object, parking_json_file, indent=1)
+                parking_json_file.close()
+                return "EC-L"+str(i)
+    if usr_input == 'C' :
+        for i in range(1,7) :
+            if parking_json_object["EC"][str(i)] == "false" :
+                parking_json_object["EC"][str(i)] = "reserved"
+                parking_json_file = open(parking_file_path, "w")
+                json.dump(parking_json_object, parking_json_file, indent=1)
+                parking_json_file.close()
+                return "EC-L"+str(i)
+    return "404"
+
+@app.route('/webhook', methods = ['POST','GET'])
+
+def api_root() :
+    message = request.json
+    print(json.dumps(request.json, indent=1))
+    user_message = message["events"][0]["message"]["text"]
+    parsed_message = user_message.lower().replace(" ","").strip()
+    reply_token = message["events"][0]["replyToken"]
+    user_id = message["events"][0]["source"]["userId"]
+    #user_profile = json.loads(str(line_bot_api.get_profile(user_id)))
+    if parsed_message in ["register","ลงทะเบียน","REGISTER_JP_PLACEHOLDER"] :
+        if not user_id in user_database_json :
+            user_database_json.update({user_id:{"lang":"NON","plate":"NON","building":"NON"}})
+            if parsed_message == "register" :
+                user_database_json[user_id]['lang'] = 'en'
+            elif parsed_message == "ลงทะเบียน" :
+                user_database_json[user_id]['lang'] = 'th'
+            elif parsed_message == "REGISTER_JP_PLACEHOLDER" :
+                user_database_json[user_id]['lang'] = 'jp'
+            user_database_file = open(userdatase_file_path,"w")
+            json.dump(user_database_json, user_database_file, indent=2)
+            user_database_file.close()
+            line_bot_api.push_message(user_id, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["plate_ask"]))
+            #line_bot_api.reply_message(reply_token, TextSendMessage(text='กรุณาเลือกภาษาที่ต้องการใช้\nPlease choose the language\n言語を選択してください\n\nภาษาไทย พิมพ์ TH\nType EN for English'))
+        elif user_id in user_database_json :
+            line_bot_api.reply_message(reply_token, TextSendMessage(text='user ID นี้ได้ลงทะเบียนไว้แล้ว'))
+    elif user_database_json[user_id]["plate"] == "NON" :
+        user_database_json[user_id]["plate"] = parsed_message
+        user_database_file = open(userdatase_file_path,"w")
+        json.dump(user_database_json, user_database_file, indent=2)
+        user_database_file.close()
+        line_bot_api.reply_message(reply_token, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["plate_regis"] + "\n" + user_database_json[user_id]["plate"]))
+        line_bot_api.push_message(user_id, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["building_ask"]))
+    elif user_database_json[user_id]["building"] == "NON" :
+        if parsed_message in ['a','b','c','d','e'] :
+            user_database_json[user_id]["building"] = parsed_message
+            user_database_file = open(userdatase_file_path,"w")
+            json.dump(user_database_json, user_database_file, indent=2)
+            user_database_file.close()
+            line_bot_api.reply_message(reply_token, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["building_regis"] + user_database_json[user_id]["building"]))
+            line_bot_api.push_message(user_id, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["regis_fin"]["1"] + user_database_json[user_id]["plate"] + response_text_json[user_database_json[user_id]["lang"]]["regis_fin"]["2"] + user_database_json[user_id]["building"].upper() + response_text_json[user_database_json[user_id]["lang"]]["regis_fin"]["3"]))
+
+    '''else :
+        if user_database_json[user_id]        
+            print('userId :' + user_id)
+        print('user profile :')
+        print(json.dumps(user_profile, indent=1))'''
+    
+    '''
+    print("message : " + parsed_message)
+    print("reply token : " + reply_token)
+    if parsed_message in ['A','E','C'] :
+        space_found = find_parking_space(parsed_message)
+        if space_found != '404' :
+            line_bot_api.reply_message(reply_token, TextSendMessage(text='ที่จอดรถใกล้ ตึก' + parsed_message + ' ที่ระบบแนะนำให้คุณคือ ' + space_found))
+        else :
+            line_bot_api.reply_message(reply_token, TextSendMessage(text='ไม่มีที่จอดรถว่างใกล้ตึก ' + parsed_message + ' ที่ตรวจพบจาก smart pole'))
+    elif parsed_message in ['help','วิธีใช้งาน','ช่วยเหลือ'] :
+        print("")
+    else :
+        line_bot_api.reply_message(reply_token, TextSendMessage(text='ตัวเลือกไม่ถูกต้อง'))'''
+    return "OK"
+
+@app.route('/lpr', methods = ['POST'])
+def process() :
+    print(str(request.data.decode('utf-8')))
+    return "OK"
+if __name__ == '__main__' :
+    app.run(debug=True)
+
