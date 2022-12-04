@@ -35,7 +35,7 @@ EC_parking_status_list = []
 
 def find_parking_space(usr_input) :
     if usr_input == 'A' :
-        for i in range(1,16) :
+        for i in [1,2,9,3,10,4,11,5,12,6,13,7,14,8,15] :
             if parking_json_object["AE"][str(i)] == "false" :
                 parking_json_object["AE"][str(i)] = "reserved"
                 parking_json_file = open(parking_file_path, "w")
@@ -43,14 +43,15 @@ def find_parking_space(usr_input) :
                 parking_json_file.close()
                 return "AE-L"+str(i)
     if usr_input == 'E' :
-        for i in range(1,16) :
+        for i in [1,2,9,3,10,4,11,5,12,6,13,7,14,8,15] :
             if parking_json_object["AE"][str(i)] == "false" :
                 parking_json_object["AE"][str(i)] = "reserved"
                 parking_json_file = open(parking_file_path, "w")
                 json.dump(parking_json_object, parking_json_file, indent=1)
                 parking_json_file.close()
                 return "AE-L"+str(i)
-            if i < 7 and parking_json_object["EC"][str(i)] == "false" :
+        for i in range(1,7) :
+            if parking_json_object["EC"][str(i)] == "false" :
                 parking_json_object["EC"][str(i)] = "reserved"
                 parking_json_file = open(parking_file_path, "w")
                 json.dump(parking_json_object, parking_json_file, indent=1)
@@ -131,7 +132,21 @@ def api_root() :
 
 @app.route('/lpr', methods = ['POST'])
 def process() :
-    print(str(request.data.decode('utf-8')))
+    nplate = str(request.data.decode('utf-8'))
+    temp = open("temp.txt",'r')
+    temp_obj = temp.read()
+    temp.close()
+    print(nplate)
+    for i in user_database_json :
+        if nplate == user_database_json[i]['plate'] and not i in temp_obj:
+            print('send data to ' + i)
+            temp = open("temp.txt",'a')
+            temp.write('\n')
+            temp.write(i)
+        elif nplate in temp_obj :
+            print("same plate detected")
+            
+
     return "OK"
 if __name__ == '__main__' :
     app.run(debug=True)

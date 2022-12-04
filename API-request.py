@@ -92,8 +92,16 @@ def request_parking_status():
     current_time = now.strftime("%c")
     print("parking status updated at : ", current_time)
 
-schedule.every(1).minutes.do(request_parking_status)
+def clear_temp():
+    temp = open("temp.txt",'w')
+    temp.write("")
+    temp.close()
+    now = datetime.now()
+    current_time = now.strftime("%c")
+    print("temp file cleared at : ", current_time)
 
+schedule.every(1).minutes.do(request_parking_status)
+schedule.every(5).minutes.do(clear_temp)
 while True:
     schedule.run_pending()
     time.sleep(1)
