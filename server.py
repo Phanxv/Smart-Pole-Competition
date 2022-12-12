@@ -6,13 +6,14 @@ from flask import request
 from flask import Flask
 from linebot import LineBotApi
 from linebot.models import TextSendMessage
+from linebot.models import ImageSendMessage
 from linebot.exceptions import LineBotApiError
 from dotenv import load_dotenv
 
 #load data from database
-parking_file_path = "parking_lot_status.json"
-userdatase_file_path = "user_database.json"
-response_file_path = "response_text.json"
+parking_file_path = "database/parking_lot_status.json"
+userdatase_file_path = "database/user_database.json"
+response_file_path = "database/response_text.json"
 load_dotenv()
 parking_json_file = open(parking_file_path, "r")
 parking_json_object = json.load(parking_json_file)
@@ -24,6 +25,9 @@ user_database_file.close()
 response_text_file = open(response_file_path,"r",encoding="utf8")
 response_text_json = json.load(response_text_file)
 response_text_file.close()
+parking_img = open("database/parking_img.json","r")
+parking_img_json = json.load(parking_img)
+parking_img.close()
 LINE_BOT_API_KEY = os.getenv('LINE_BOT_API_KEY')
 
 #initialize server and LINE bot
@@ -34,7 +38,7 @@ AE_parking_status_list = []
 EC_parking_status_list = []
 
 def find_parking_space(usr_input) :
-    if usr_input == 'A' :
+    if usr_input == 'a' :
         for i in [1,2,9,3,10,4,11,5,12,6,13,7,14,8,15] :
             if parking_json_object["AE"][str(i)] == "false" :
                 parking_json_object["AE"][str(i)] = "reserved"
@@ -42,7 +46,7 @@ def find_parking_space(usr_input) :
                 json.dump(parking_json_object, parking_json_file, indent=1)
                 parking_json_file.close()
                 return "AE-L"+str(i)
-    if usr_input == 'E' :
+    if usr_input == 'e' :
         for i in [1,2,9,3,10,4,11,5,12,6,13,7,14,8,15] :
             if parking_json_object["AE"][str(i)] == "false" :
                 parking_json_object["AE"][str(i)] = "reserved"
@@ -57,7 +61,7 @@ def find_parking_space(usr_input) :
                 json.dump(parking_json_object, parking_json_file, indent=1)
                 parking_json_file.close()
                 return "EC-L"+str(i)
-    if usr_input == 'C' :
+    if usr_input == 'c' :
         for i in range(1,7) :
             if parking_json_object["EC"][str(i)] == "false" :
                 parking_json_object["EC"][str(i)] = "reserved"
@@ -92,7 +96,7 @@ def api_root() :
             line_bot_api.push_message(user_id, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["plate_ask"]))
             #line_bot_api.reply_message(reply_token, TextSendMessage(text='กรุณาเลือกภาษาที่ต้องการใช้\nPlease choose the language\n言語を選択してください\n\nภาษาไทย พิมพ์ TH\nType EN for English'))
         elif user_id in user_database_json :
-            line_bot_api.reply_message(reply_token, TextSendMessage(text='user ID นี้ได้ลงทะเบียนไว้แล้ว'))
+            line_bot_api.reply_message(reply_token, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["registered"]))
     elif user_database_json[user_id]["plate"] == "NON" :
         user_database_json[user_id]["plate"] = parsed_message
         user_database_file = open(userdatase_file_path,"w")
@@ -108,7 +112,14 @@ def api_root() :
             user_database_file.close()
             line_bot_api.reply_message(reply_token, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["building_regis"] + user_database_json[user_id]["building"]))
             line_bot_api.push_message(user_id, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["regis_fin"]["1"] + user_database_json[user_id]["plate"] + response_text_json[user_database_json[user_id]["lang"]]["regis_fin"]["2"] + user_database_json[user_id]["building"].upper() + response_text_json[user_database_json[user_id]["lang"]]["regis_fin"]["3"]))
+        else :
+            line_bot_api.reply_message(reply_token, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["building_notfound"]))
+            line_bot_api.push_message(user_id, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["building_ask"]))
 
+    elif parsed_message in ["ลบข้อมูล","delete","JP_del"] :
+        user_database_json[user_id]["lang"] = "NON"
+        user_database_json[user_id]["plate"] = "NON"
+        user_database_json[user_id]["building"] = "NON"
     '''else :
         if user_database_json[user_id]        
             print('userId :' + user_id)
@@ -139,10 +150,17 @@ def process() :
     print(nplate)
     for i in user_database_json :
         if nplate == user_database_json[i]['plate'] and not i in temp_obj:
-            print('send data to ' + i)
-            temp = open("temp.txt",'a')
-            temp.write('\n')
-            temp.write(i)
+            lot = find_parking_space(user_database_json[i]['building'])
+            if lot == "404" :
+                print("space not found")
+                line_bot_api.push_message(i, TextSendMessage(text=response_text_json[user_database_json[i]["lang"]]["lot_notfound"]))
+            else :
+                print('send data to ' + i)
+                line_bot_api.push_message(i, TextSendMessage(text=response_text_json[user_database_json[i]["lang"]]["lot_found"] + lot))
+                line_bot_api.push_message(i, ImageSendMessage(original_content_url=parking_img_json[lot]["originalContentUrl"],preview_image_url=parking_img_json[lot]["previewImageUrl"]))
+                temp = open("temp.txt",'a')
+                temp.write('\n')
+                temp.write(i)
         elif nplate in temp_obj :
             print("same plate detected")
             

@@ -17,7 +17,7 @@ vs = FileVideoStream("Footage2.mp4").start()
 time.sleep(2.0)
 fps = FPS().start()
 print("Load Video Stream Successfully")
-nplateCascade = cv2.CascadeClassifier("haarcascade_russian_plate_number.xml")
+nplateCascade = cv2.CascadeClassifier("database/haarcascade_russian_plate_number.xml")
 minArea = 100
 th = 125
 kernel = np.ones((2, 2), np.uint8)
@@ -39,8 +39,8 @@ while True :
             #ROI_process = cv2.equalizeHist(ROI)
             #ROI_process[ROI_process>=th] = 255
             #ROI_process[ROI_process<th] = 0
-            eroded = cv2.erode(ROI_process,kernel,iterations=1)
-            equ = cv2.equalizeHist(ROI_process)
+            eroded = cv2.adaptiveThreshold(ROI_process, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 21, 5)
+            equ = cv2.equalizeHist(eroded)
             blur = cv2.GaussianBlur(equ, (5, 5), 1)
             #thresh = cv2.adaptiveThreshold(ROI_process, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 21, 4)
             cv2.imshow("ROI", blur)
