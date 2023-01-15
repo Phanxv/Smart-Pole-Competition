@@ -76,10 +76,13 @@ def find_parking_space(usr_input) :
 def api_root() :
     message = request.json
     print(json.dumps(request.json, indent=1))
-    user_message = message["events"][0]["message"]["text"]
-    parsed_message = user_message.lower().replace(" ","").strip()
-    reply_token = message["events"][0]["replyToken"]
-    user_id = message["events"][0]["source"]["userId"]
+    try :
+        user_message = message["events"][0]["message"]["text"]
+        parsed_message = user_message.lower().replace(" ","").strip()
+        reply_token = message["events"][0]["replyToken"]
+        user_id = message["events"][0]["source"]["userId"]
+    except KeyError :
+        pass
     #user_profile = json.loads(str(line_bot_api.get_profile(user_id)))
     if parsed_message in ["register","ลงทะเบียน","REGISTER_JP_PLACEHOLDER"] :
         if not user_id in user_database_json :
@@ -116,7 +119,7 @@ def api_root() :
             line_bot_api.reply_message(reply_token, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["building_notfound"]))
             line_bot_api.push_message(user_id, TextSendMessage(text=response_text_json[user_database_json[user_id]["lang"]]["building_ask"]))
 
-    elif parsed_message in ["ลบข้อมูล","delete","JP_del"] :
+    elif parsed_message in ["ลบข้อมูล","delete"] :
         user_database_json[user_id]["lang"] = "NON"
         user_database_json[user_id]["plate"] = "NON"
         user_database_json[user_id]["building"] = "NON"
@@ -147,7 +150,6 @@ def process() :
     temp = open("temp.txt",'r')
     temp_obj = temp.read()
     temp.close()
-    print(nplate)
     for i in user_database_json :
         if nplate == user_database_json[i]['plate'] and not i in temp_obj:
             lot = find_parking_space(user_database_json[i]['building'])
@@ -155,7 +157,7 @@ def process() :
                 print("space not found")
                 line_bot_api.push_message(i, TextSendMessage(text=response_text_json[user_database_json[i]["lang"]]["lot_notfound"]))
             else :
-                print('send data to ' + i)
+                print(nplate + ' found, parking space data sent to ' + i)
                 line_bot_api.push_message(i, TextSendMessage(text=response_text_json[user_database_json[i]["lang"]]["lot_found"] + lot))
                 line_bot_api.push_message(i, ImageSendMessage(original_content_url=parking_img_json[lot]["originalContentUrl"],preview_image_url=parking_img_json[lot]["previewImageUrl"]))
                 temp = open("temp.txt",'a')

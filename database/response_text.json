@@ -5,7 +5,6 @@
         "plate_regis" : "ทะเบียนรถถูกบันทึกแล้ว :",
         "building_ask" : "ท่านทำงานอยู่ที่ตึกไหน \n(ใส่แค่ตัวอักษรตึก)",
         "building_regis" : "ตึกที่ทำงานถูกบันทึก : ตึก",
-        "building_notfound" : "ไม่พบตึกในฐานข้อมูล",
         "regis_fin" : {
             "1" : "การลงทะเบียนเสร็จสมบูรณ์ \nตั้งแต่บัดนี้หากระบบตรวจพบทะเบียนรถ",
             "2" : "ระบบจะทำการหาที่จอดรถที่ใกล้ตึก ",
@@ -14,7 +13,7 @@
         "lot_found" : "ช่องจอดรถสำหรับคุณคือ ",
         "lot_notfound" : "ระบบไม่พบช่องจอดรถสำหรับคุณ \nขออภัยในความไม่สะดวก",
         "data_delete" : "ข้อมูลของท่านถูกลบออกจากระบบแล้ว",
-        "registed" : "user ID นี้ได้ลงทะเบียนไว้แล้ว"
+        "registered" : "บัญชีไลน์นี้ถูกลงทะเบียนไว้แล้ว"
     },
     "en" : {
         "lang_regis" : "Language preferrence saved : English",
@@ -22,7 +21,6 @@
         "plate_regis" : "Licence plate registed as ",
         "building_ask" : "Which building do you work in? \n(enter only 1 character)",
         "building_regis" : "Building registed : Building ",
-        "building_notfound" : "Building not existed in the database",
         "regis_fin" : {
             "1" : "Registration process successful, \nfrom now on if licence plate ",
             "2" : " detected \nThe system will find parking space nearest to building ",
@@ -31,21 +29,22 @@
         "lot_found" : "The parking space for you is : ",
         "lot_notfound" : "Parking space not found by the system \nSorry for the inconvenience",
         "data_delete" : "User data deleted from the system",
-        "registed" : "This user ID's already registered"
+        "registered" : "This LINE user is already registered"
     },
     "jp" : {
-        "lang_regis" : "",
-        "plate_ask" : "",
-        "plate_regis" : "",
-        "building_ask" : "",
-        "building_regis" : "",
+        "lang_regis" : "言語オプションが保存されました。: 日本語",
+        "plate_ask" : "車両登録番号を入力してください \n(例: กก9999)",
+        "plate_regis" : "車両登録が保存されました。",
+        "building_ask" : "どの建物で働きますか？\n(1文字のみ入力)",
+        "building_regis" : "この建物は保存されました。：建物",
         "regis_fin" : {
-            "1" : "",
-            "2" : "",
-            "3" : ""
+            "1" : "登録完了 \n今から、システムが車両登録を検出した場合",
+            "2" : "システムは、建物に最も近い駐車スペースを見つけます。",
+            "3" : "誠にありがとうございます。 \n\n「delete」と入力して、サービスの使用を停止し、個人データを削除することができます"
         },
-        "lot_found" : "",
-        "lot_notfound" : "",
-        "data_delete" : ""
+        "lot_found" : "ユーザーの駐車スペースは",
+        "lot_notfound" : "システムで駐車スペースが見つかりません\nご迷惑をおかけして申し訳ありません",
+        "data_delete" : "システムから削除されたユーザーデータ",
+        "registered" : "このユーザーはすでに登録されています"
     }
 }
